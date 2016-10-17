@@ -25,7 +25,6 @@ script:
   - gotestcover -coverprofile="cover.out" $(glide novendor)
   - go test -race $(go list ./... | grep -v /vendor | grep -v /cmd)
   - go test -v -bench=.* -run=none $(glide novendor)
-  - goveralls -coverprofile="cover.out"
   - docker build -t hydra-travis-ci .
   - docker run -d hydra-travis-ci
   - $GOPATH/bin/hydra host --dangerous-auto-logon &
@@ -34,6 +33,7 @@ script:
 
 after_success:
   - if  [ "${TRAVIS_TAG}" != "" ] && [ "${TRAVIS_GO_VERSION}" == "1.7" ]; then gox -ldflags "-X github.com/ory-am/hydra/cmd.Version=`git describe --tags` -X github.com/ory-am/hydra/cmd.BuildTime=`TZ=UTC date -u '+%Y-%m-%dT%H:%M:%SZ'` -X github.com/ory-am/hydra/cmd.GitHash=`git rev-parse HEAD`" -output "dist/{{.Dir}}-{{.OS}}-{{.Arch}}"; fi
+  - goveralls -coverprofile="cover.out"
 
 deploy:
   provider: releases
